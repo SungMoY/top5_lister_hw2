@@ -6,14 +6,16 @@ export class ItemCard extends React.Component {
 
         this.state = {
             text: this.props.item,
-            editActive: false
+            editActive: false,
+            dropTargetId: null
         }
     }
     handleRemoveEdit = (event) => {
-        console.log("remove edit called")
+        console.log("remove edit called before flip", this.state.editActive)
         this.setState({
             editActive: false
         });
+        console.log("remove edit called after flip", this.state.editActive)
     }
     //calls handletoggleedit when item is doubleclicked
     handleClick = (event) => {
@@ -57,7 +59,18 @@ export class ItemCard extends React.Component {
             editActive: !this.state.editActive
         });
     }
-    //if editActive is true, the double clicked item is changed to a text input
+    handleDrag = (event) => {
+        console.log("now dragging", this.props.id)
+    }
+    handleDragOver = (event) => {
+        console.log("dragged over", this.props.id)
+        this.setState({dropTargetId : this.props.id})
+        console.log("dragged over", this.state.dropTargetId)
+    }
+    handleDrop = (event) => {
+        console.log("dropped over", this.state.dropTargetId)
+    }
+    //if editActive is true, the double clicked item is changed to an autoFocused text input
     //else, the item is a simple div element when the double click event ready
     render() {
         //console.log("render called")
@@ -81,8 +94,12 @@ export class ItemCard extends React.Component {
             <div 
                 id={this.props.id} 
                 className="top5-item"
-                onClick={this.handleClick}>
-                {this.props.item}
+                onClick={this.handleClick}
+                draggable={true}
+                onDragStart={this.handleDrag}
+                onDrop={this.handleDrop}
+                onDragOver={this.handleDragOver}>
+                    {this.props.item}
             </div>
         )
     }
