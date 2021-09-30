@@ -58,6 +58,7 @@ export default class ListCard extends React.Component {
                     id={"list-" + keyNamePair.name}
                     className='list-card'
                     type='text'
+                    autoFocus={true}
                     onKeyPress={this.handleKeyPress}
                     onBlur={this.handleBlur}
                     onChange={this.handleUpdate}

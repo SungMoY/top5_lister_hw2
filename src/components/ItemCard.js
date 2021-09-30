@@ -11,10 +11,24 @@ export class ItemCard extends React.Component {
     }
     handleRemoveEdit = (event) => {
         console.log("remove edit called")
-        
         this.setState({
             editActive: false
         });
+    }
+    //calls handletoggleedit when item is doubleclicked
+    handleClick = (event) => {
+        if (event.detail === 1) {
+            console.log("clicked once")
+            this.handleRemoveEdit(event);
+        } else if (event.detail === 2) {
+            //console.log("double clicked an item")
+            if (this.editActive) {
+                this.handleRemoveEdit(event);
+                this.setState();
+            } else {
+                this.handleToggleEdit(event);
+            }
+        }
     }
     //indicates that text input has finished and item should now be updated
     handleBlur = (event) => {
@@ -36,20 +50,6 @@ export class ItemCard extends React.Component {
     handleUpdate = (event) => {
         this.setState({ text: event.target.value });
     }
-    //calls handletoggleedit when item is doubleclicked
-    handleClick = (event) => {
-        if (event.detail === 1) {
-            console.log("clicked once")
-            this.handleRemoveEdit(event);
-        } else if (event.detail === 2) {
-            //console.log("double clicked an item")
-            if (this.editActive) {
-                this.handleRemoveEdit(event);
-            } else {
-                this.handleToggleEdit(event);
-            }
-        }
-    }
     //flips the value of editactive then calls state (which calls render)
     handleToggleEdit = (event) => {
         //console.log("editActive was ", this.state.editActive)
@@ -70,6 +70,7 @@ export class ItemCard extends React.Component {
                     id={this.props.id}
                     className='top5-item'
                     type='text'
+                    autoFocus={true}
                     onKeyPress={this.handleKeyPress}
                     onBlur={this.handleBlur}
                     onChange={this.handleUpdate}
