@@ -9,7 +9,7 @@ export default class Statusbar extends React.Component {
         }
         return (
             <div id="top5-statusbar">
-                {name}
+                Top 5 {name}
             </div>
         )
     }

@@ -24,7 +24,7 @@ class App extends React.Component {
         // SETUP THE INITIAL STATE
         this.state = {
             currentList : null,
-            sessionData : loadedSessionData
+            sessionData : loadedSessionData,
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {

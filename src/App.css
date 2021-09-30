@@ -137,6 +137,7 @@ body {
 .list-card-button {
   float:right;
   font-size:18pt;
+  
 }
 
 #workspace-home, #workspace-edit {
@@ -162,17 +163,23 @@ body {
   float:left;
   color: black;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center; 
 }
 
 
 .top5-button:hover {
   cursor: pointer;
   color:black;
+  display: inline-flex;
+  align-items: center; 
 }
 
 .top5-button-disabled {
   opacity: 0.25; 
   cursor: not-allowed;
+  display: inline-flex;
+  align-items: center; 
 }
 
 #edit-numbering {
