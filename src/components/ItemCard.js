@@ -7,7 +7,7 @@ export class ItemCard extends React.Component {
         this.state = {
             text: this.props.item,
             editActive: false,
-            dropTargetId: null
+            draggedOnto: false
         }
     }
     handleRemoveEdit = (event) => {
@@ -59,17 +59,27 @@ export class ItemCard extends React.Component {
             editActive: !this.state.editActive
         });
     }
-    handleDrag = (event) => {
-        console.log("now dragging", this.props.id)
+    handleDragStart = (event) => {
+        event.dataTransfer.setData("number", event.target.id)
     }
     handleDragOver = (event) => {
+        event.preventDefault();
         console.log("dragged over", this.props.id)
-        this.setState({dropTargetId : this.props.id})
-        console.log("dragged over", this.state.dropTargetId)
     }
     handleDrop = (event) => {
-        console.log("dropped over", this.state.dropTargetId)
+        console.log("dragged", event.dataTransfer.getData("number"))
+        console.log("dropped on", this.props.id)
+        this.props.dragAndDropUpdateCallback(event.dataTransfer.getData("number"), this.props.id, this.props.currentListKey)
+        this.setState({draggedOnto : false})
     }
+    handleDragEnter = (event) => {
+        this.setState({draggedOnto : true})
+    }
+
+    handleDragLeave = (event) => {
+        this.setState({draggedOnto : false})
+    }
+
     //if editActive is true, the double clicked item is changed to an autoFocused text input
     //else, the item is a simple div element when the double click event ready
     render() {
@@ -89,19 +99,26 @@ export class ItemCard extends React.Component {
                     onChange={this.handleUpdate}
                     defaultValue={this.props.item}
                 />)
+        } else {
+            let selectClass = "top5-item"
+            if (this.state.draggedOnto) {
+                selectClass = "top5-item-dragged-to"
+            }
+            return (
+                <div 
+                    id={this.props.id} 
+                    className={selectClass}
+                    onClick={this.handleClick}
+                    draggable={true}
+                    onDragStart={this.handleDragStart}
+                    onDragOver={this.handleDragOver}
+                    onDrop={this.handleDrop}
+                    onDragEnter={this.handleDragEnter}
+                    onDragLeave={this.handleDragLeave}>
+                        {this.props.item}
+                </div>
+            )
         }
-        return (
-            <div 
-                id={this.props.id} 
-                className="top5-item"
-                onClick={this.handleClick}
-                draggable={true}
-                onDragStart={this.handleDrag}
-                onDrop={this.handleDrop}
-                onDragOver={this.handleDragOver}>
-                    {this.props.item}
-            </div>
-        )
     }
 }
 

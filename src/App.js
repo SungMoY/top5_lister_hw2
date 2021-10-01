@@ -25,6 +25,7 @@ class App extends React.Component {
         this.state = {
             currentList : null,
             sessionData : loadedSessionData,
+            listKeyPairToDelete: null
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -117,7 +118,31 @@ class App extends React.Component {
         this.db.mutationUpdateList(templist);
         this.db.mutationUpdateSessionData(this.state.sessionData);
         this.loadList(templist.key);
-
+    }
+    dragAndDropUpdate = (draggedItemId, droppedAtItemId, currentListKey) => {
+        console.log("dragged",draggedItemId,"dropped",droppedAtItemId)
+        let tempList = this.db.queryGetList(currentListKey)
+        let tempItems = tempList.items
+        //move an item lower than its destination up, bubble items below it down
+        //move item 5 to item 1. Item 1->2, 2->3, 3->4, 4->5
+        if (draggedItemId > droppedAtItemId) {
+            let movedItem = tempItems[draggedItemId-1]  //save the item that is moving up
+            for (let i = draggedItemId-1; i > droppedAtItemId-2; i--) {
+                console.log(i)
+                tempItems[i] = tempItems[i-1];
+            }
+            tempItems[droppedAtItemId-1] = movedItem;
+        //move item 1 to item 5. 
+        } else if (draggedItemId < droppedAtItemId) {
+            let movedItem = tempItems[draggedItemId-1]
+            for (let i = draggedItemId-1; i < droppedAtItemId;i++) {
+                tempItems[i] = tempItems[i+1]
+            }
+            tempItems[droppedAtItemId-1] = movedItem;
+        }
+        this.db.mutationUpdateList(tempList)
+        this.db.mutationUpdateSessionData(this.state.sessionData)
+        this.loadList(currentListKey)
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
@@ -139,12 +164,13 @@ class App extends React.Component {
             // ANY AFTER EFFECTS?
         });
     }
-    deleteList = () => {
+    deleteList = (parameter) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        this.showDeleteListModal();
+        this.setState({listKeyPairToDelete:parameter})
+        this.showDeleteListModal(this.state.listKeyPairToDelete);
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -157,6 +183,27 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
+    
+    deleteListConfirmed = () => {
+        //hides the modal
+        let modal = document.getElementById("delete-modal");
+        modal.classList.remove("is-visible");
+        //Now delete the list
+        console.log(this.state.sessionData)
+
+
+        console.log(this.state.listKeyPairToDelete.key)
+        let tempArray = this.state.sessionData.keyNamePairs
+        console.log("temparray", this.state.listKeyPairToDelete)
+        let newArray = []
+        tempArray.map((eachList) => (
+            (eachList.key === this.state.listKeyPairToDelete.key) ? {} : (newArray[eachList.key] = eachList)
+        )
+        )
+        console.log(newArray)
+        //this.db.mutationUpdateSessionData(this.state.sessionData);
+    }
+    
     render() {
         return (
             <div id="app-root">
@@ -174,11 +221,13 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList} 
-                    renameItemCallback={this.renameItem} />
+                    dragAndDropUpdateCallback={this.dragAndDropUpdate} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
+                    listKeyPair={this.state.listKeyPairToDelete}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
+                    deleteListConfirmedCallback={this.deleteListConfirmed}
                 />
             </div>
         );

@@ -4,7 +4,8 @@ import ItemCard from './ItemCard';
 export default class Workspace extends React.Component {
     render() {
         const { currentList,
-                renameItemCallback } = this.props;
+                renameItemCallback,
+                dragAndDropUpdateCallback } = this.props;
 
         if (currentList != null) {
             //This render occurs when a list is selected and its items are on display on Workspace div
@@ -28,6 +29,7 @@ export default class Workspace extends React.Component {
                                         item={currentItem}
                                         currentListKey={currentList.key}
                                         renameItemCallback={renameItemCallback}
+                                        dragAndDropUpdateCallback={dragAndDropUpdateCallback}
                                     />
                                 ))
                             }
