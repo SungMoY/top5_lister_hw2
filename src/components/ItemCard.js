@@ -5,60 +5,47 @@ export class ItemCard extends React.Component {
         super(props);
 
         this.state = {
-            text: this.props.item,
+            itemText: this.props.item,
+            itemId: this.props.id,
             editActive: false,
-            draggedOnto: false
+            draggedOnto: false,
+            actualInputChange: false
         }
     }
-    handleRemoveEdit = (event) => {
-        console.log("remove edit called before flip", this.state.editActive)
-        this.setState({
-            editActive: false
-        });
-        console.log("remove edit called after flip", this.state.editActive)
-    }
-    //calls handletoggleedit when item is doubleclicked
+
     handleClick = (event) => {
-        if (event.detail === 1) {
-            console.log("clicked once")
-            this.handleRemoveEdit(event);
-        } else if (event.detail === 2) {
-            //console.log("double clicked an item")
-            if (this.editActive) {
-                this.handleRemoveEdit(event);
-                this.setState();
-            } else {
-                this.handleToggleEdit(event);
-            }
+        if (event.detail === 2) {
+            this.setState({editActive:!this.state.editActive})
+            console.log("default value", this.state.itemText, this.state.itemId)
         }
     }
-    //indicates that text input has finished and item should now be updated
-    handleBlur = (event) => {
-        //console.log("HANDLE BLUR CALLED")
-        let id = this.props.id;
-        let textValue = this.state.text;
-        //console.log("currentList", this.props.currentListKey);
-        this.props.renameItemCallback(id, textValue, this.props.currentListKey);
-        this.handleToggleEdit();
+    handleChange = (event) => {
+        this.setState({
+            itemText: event.target.value,
+            actualInputChange: true
+        })
     }
-    //calls handleblur when enter is pressed
     handleKeyPress = (event) => {
         if (event.code === "Enter") {
-            //console.log("enter was pressed")
             this.handleBlur();
         }
     }
-    //sets the state text to the updated text input
-    handleUpdate = (event) => {
-        this.setState({ text: event.target.value });
-    }
-    //flips the value of editactive then calls state (which calls render)
-    handleToggleEdit = (event) => {
-        //console.log("editActive was ", this.state.editActive)
+    handleBlur = (event) => {
+        if (this.state.actualInputChange) {
         this.setState({
-            editActive: !this.state.editActive
+            editActive: !this.state.editActive,
+        }, () => {
+            console.log("PARAMS", this.state.itemId, this.state.itemText, this.props.currentListKey)
+            this.props.renameItemCallback(this.state.itemId, this.state.itemText, this.props.currentListKey)
         });
+        console.log("TEXT AFTER EDIT", this.state.itemText)
+        } else {
+            this.setState({
+                editActive: !this.state.editActive,
+            })
+        }
     }
+
     handleDragStart = (event) => {
         event.dataTransfer.setData("number", event.target.id)
     }
@@ -71,6 +58,13 @@ export class ItemCard extends React.Component {
         console.log("dropped on", this.props.id)
         this.props.dragAndDropUpdateCallback(event.dataTransfer.getData("number"), this.props.id, this.props.currentListKey)
         this.setState({draggedOnto : false})
+        /*
+        this.setState(prevState => ({
+            draggedOnto: false,
+        }), () => {
+            // ANY AFTER EFFECTS?
+        });
+        */
     }
     handleDragEnter = (event) => {
         this.setState({draggedOnto : true})
@@ -83,7 +77,7 @@ export class ItemCard extends React.Component {
     //if editActive is true, the double clicked item is changed to an autoFocused text input
     //else, the item is a simple div element when the double click event ready
     render() {
-        //console.log("render called")
+        console.log("render called", this.props.id, this.props.item)
         //console.log("editActive is now", this.state.editActive)
         //console.log("current key", this.props.id)
         if (this.state.editActive) {
@@ -96,7 +90,7 @@ export class ItemCard extends React.Component {
                     autoFocus={true}
                     onKeyPress={this.handleKeyPress}
                     onBlur={this.handleBlur}
-                    onChange={this.handleUpdate}
+                    onChange={this.handleChange}
                     defaultValue={this.props.item}
                 />)
         } else {

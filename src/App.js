@@ -106,6 +106,7 @@ class App extends React.Component {
         });
     }
     renameItem = (itemId, newText, currentListKey) => {    
+        console.log("rename item listkey", itemId)
         if (newText === "") {
             newText = "?"
         }
@@ -128,7 +129,6 @@ class App extends React.Component {
         if (draggedItemId > droppedAtItemId) {
             let movedItem = tempItems[draggedItemId-1]  //save the item that is moving up
             for (let i = draggedItemId-1; i > droppedAtItemId-2; i--) {
-                console.log(i)
                 tempItems[i] = tempItems[i-1];
             }
             tempItems[droppedAtItemId-1] = movedItem;
@@ -221,6 +221,7 @@ class App extends React.Component {
     }
     
     render() {
+        console.log("main render", this.state.currentList)
         return (
             <div id="app-root">
                 <Banner 
