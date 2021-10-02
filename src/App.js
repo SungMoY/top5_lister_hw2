@@ -3,6 +3,9 @@ import './App.css';
 
 // IMPORT DATA MANAGEMENT AND TRANSACTION STUFF
 import DBManager from './db/DBManager';
+import jsTPS from "./transactions/jsTPS.js";
+import ChangeItem_Transaction from "./transactions/ChangeItem_Transaction.js";
+import MoveItem_Transaction from "./transactions/MoveItem_Transaction.js";
 
 // THESE ARE OUR REACT COMPONENTS
 import DeleteModal from './components/DeleteModal';
@@ -25,7 +28,38 @@ class App extends React.Component {
         this.state = {
             currentList : null,
             sessionData : loadedSessionData,
-            //listKeyPairMarkedForDeletion: null
+            tps : new jsTPS()
+        }
+
+        //TODO MAKE THISWORK
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'z' && event.ctrlKey) {
+                console.log("control-z successfully pressed")
+                this.undo()
+                event.stopImmediatePropagation()
+            }
+            if (event.key === 'y' && event.ctrlKey) {
+                console.log("control-y successfully pressed")
+                this.redo()
+                event.stopImmediatePropagation()
+            }
+        })
+    }
+    // SIMPLE UNDO/REDO FUNCTIONS - use setstate to render buttons, add callbacks for each button
+    undo = () => {
+        console.log("undo was called", this.state.tps.transactions)
+        console.log("undo was called", this.state.tps.toString())
+        if (this.state.tps.hasTransactionToUndo()) {
+            this.state.tps.undoTransaction();
+            this.setState()
+        }
+    }
+    redo = () => {
+        console.log("redo was called", this.state.tps)
+        console.log("redo was called", this.state.tps.toString())
+        if (this.state.tps.hasTransactionToRedo()) {
+            this.state.tps.redoTransaction();
+            this.setState()
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -109,16 +143,23 @@ class App extends React.Component {
         });
     }
     renameItem = (itemId, newText, currentListKey) => {    
-        if (newText === "") {
-            newText = "?"
-        }
         let templist = this.db.queryGetList(currentListKey)
         templist.items.map((element, index) => (
             (index+1 === itemId) ? templist.items[index] = newText : ({}))
         )
         this.db.mutationUpdateList(templist);
         this.db.mutationUpdateSessionData(this.state.sessionData);
-        this.loadList(templist.key);
+        this.updateList(templist.key);
+    }
+    addRenameItemTransaction = (itemId, newText, currentListKey) => {
+        if (newText === "") {
+            newText = "?"
+        }
+        let oldText = this.db.queryGetList(currentListKey).items[itemId-1]
+        let transaction = new ChangeItem_Transaction(this.db, itemId, currentListKey, oldText, newText, this.renameItem)
+        let tempTPS = this.state.tps
+        tempTPS.addTransaction(transaction)
+        this.setState({tps:tempTPS})
     }
     dragAndDropUpdate = (draggedItemId, droppedAtItemId, currentListKey) => {
         let tempList = this.db.queryGetList(currentListKey)
@@ -141,10 +182,32 @@ class App extends React.Component {
         }
         this.db.mutationUpdateList(tempList)
         this.db.mutationUpdateSessionData(this.state.sessionData)
-        this.loadList(currentListKey)
+        this.updateList(currentListKey)
+    }
+    adddragAndDropUpdateTransaction = (draggedItemId, droppedAtItemId, currentListKey) => {
+        console.log("adddragAndDropUpdateTransaction params: ", draggedItemId, droppedAtItemId, currentListKey)
+
+        let transaction = new MoveItem_Transaction(this.db, currentListKey, draggedItemId, droppedAtItemId, this.dragAndDropUpdate)
+
+        let tempTPS = this.state.tps
+        tempTPS.addTransaction(transaction)
+        console.log("tempTPS after adding transaction", tempTPS.transactions)
+
+        this.setState({tps:tempTPS})
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
+        let newCurrentList = this.db.queryGetList(key);
+        console.log("LOADING THIS LIST: ",newCurrentList)
+        this.setState(prevState => ({
+            currentList: newCurrentList,
+            sessionData: prevState.sessionData
+        }), () => {
+            // ANY AFTER EFFECTS?
+            this.state.tps.clearAllTransactions();
+        });
+    }
+    updateList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
         console.log("LOADING THIS LIST: ",newCurrentList)
         this.setState(prevState => ({
@@ -159,9 +222,10 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: null,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
-            sessionData: this.state.sessionData
+            sessionData: this.state.sessionData,
         }), () => {
             // ANY AFTER EFFECTS?
+            this.state.tps.clearAllTransactions();
         });
     }
     deleteList = (keyPairToDelete) => {
@@ -203,11 +267,15 @@ class App extends React.Component {
         this.db.mutationUpdateSessionData(this.state.sessionData);
     }
     render() {
+        console.log("TRANSACTION ARRAY AT RENDER TIME",this.state.tps.transactions)
         return (
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
                     currentList={this.state.currentList}
+                    transactionStacktps={this.state.tps}
+                    undoCallback={this.undo}
+                    redoCallback={this.redo}
                     closeCallback={this.closeCurrentList} />
                 <Sidebar
                     heading='Your Lists'
@@ -220,8 +288,8 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList} 
-                    dragAndDropUpdateCallback={this.dragAndDropUpdate}
-                    renameItemCallback={this.renameItem} />
+                    dragAndDropUpdateCallback={this.adddragAndDropUpdateTransaction}
+                    renameItemCallback={this.addRenameItemTransaction} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
