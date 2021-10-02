@@ -32,7 +32,10 @@ export default class DBManager {
     }
     
     mutationUpdateSessionData = (sessionData) => {
+        console.log("ses data in dbmanager", sessionData);
+
         let sessionDataString = JSON.stringify(sessionData);
+        console.log(sessionData);
         localStorage.setItem("top5-data", sessionDataString);
     }
 }

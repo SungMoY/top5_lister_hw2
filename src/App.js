@@ -25,7 +25,7 @@ class App extends React.Component {
         this.state = {
             currentList : null,
             sessionData : loadedSessionData,
-            listKeyPairToDelete: null
+            //listKeyPairMarkedForDeletion: null
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -164,13 +164,19 @@ class App extends React.Component {
             // ANY AFTER EFFECTS?
         });
     }
-    deleteList = (parameter) => {
+    deleteList = (keyPairToDelete) => {
         // SOMEHOW YOU ARE GOING TO HAVE TO FIGURE OUT
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        this.setState({listKeyPairToDelete:parameter})
-        this.showDeleteListModal(this.state.listKeyPairToDelete);
+        console.log("keyPairToDelete", keyPairToDelete)
+        this.setState(
+            {
+                listKeyPairMarkedForDeletion: keyPairToDelete
+            },
+            function() { console.log("set state listKeyPairMarkedForDeletion", this.state.listKeyPairMarkedForDeletion) }
+           )
+        this.showDeleteListModal();
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
     // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
@@ -183,25 +189,35 @@ class App extends React.Component {
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
     }
-    
-    deleteListConfirmed = () => {
+    //This function is called by the delete modal - it actually deletes the list from sessionData and then updates the DOM to reflect so
+    deleteListConfirmed = (parameter) => {
+        console.log("deleteListConfirmed now executes", this.state.listKeyPairMarkedForDeletion)
         //hides the modal
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
         //Now delete the list
-        console.log(this.state.sessionData)
+        let toDeletekey =  this.state.listKeyPairMarkedForDeletion.key
+        console.log("keypairs before delete", this.state.sessionData.keyNamePairs)
+        let newKeyNamePairs = this.state.sessionData.keyNamePairs.filter((keyNamePair) => {
+            return (keyNamePair.key !== toDeletekey)
+        })
+        console.log("key pairs after delete", newKeyNamePairs)
+        let copySessionData = this.state.sessionData
+        console.log("copy1", copySessionData)
+        copySessionData.keyNamePairs = newKeyNamePairs
+        copySessionData.counter--;
+        console.log("copy2", copySessionData)
+        this.setState(
+            {
+                sessionData:copySessionData
+            },
+            function() { }
+           )
+        console.log("after removal", this.state.sessionData)
+        console.log(JSON.stringify(this.state.sessionData))
+        this.db.mutationUpdateSessionData(this.state.sessionData);
+        //console.log("after removed session data", this.db.queryGetSessionData())
 
-
-        console.log(this.state.listKeyPairToDelete.key)
-        let tempArray = this.state.sessionData.keyNamePairs
-        console.log("temparray", this.state.listKeyPairToDelete)
-        let newArray = []
-        tempArray.map((eachList) => (
-            (eachList.key === this.state.listKeyPairToDelete.key) ? {} : (newArray[eachList.key] = eachList)
-        )
-        )
-        console.log(newArray)
-        //this.db.mutationUpdateSessionData(this.state.sessionData);
     }
     
     render() {
@@ -221,11 +237,12 @@ class App extends React.Component {
                 />
                 <Workspace
                     currentList={this.state.currentList} 
-                    dragAndDropUpdateCallback={this.dragAndDropUpdate} />
+                    dragAndDropUpdateCallback={this.dragAndDropUpdate}
+                    renameItemCallback={this.renameItem} />
                 <Statusbar 
                     currentList={this.state.currentList} />
                 <DeleteModal
-                    listKeyPair={this.state.listKeyPairToDelete}
+                    listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
                     deleteListConfirmedCallback={this.deleteListConfirmed}
                 />
