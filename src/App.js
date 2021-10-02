@@ -73,6 +73,9 @@ class App extends React.Component {
         });
     }
     renameList = (key, newName) => {
+        if (newName === "") {
+            newName = "Untitled"+key
+        }
         let newKeyNamePairs = [...this.state.sessionData.keyNamePairs];
         // NOW GO THROUGH THE ARRAY AND FIND THE ONE TO RENAME
         for (let i = 0; i < newKeyNamePairs.length; i++) {
@@ -106,7 +109,6 @@ class App extends React.Component {
         });
     }
     renameItem = (itemId, newText, currentListKey) => {    
-        console.log("rename item listkey", itemId)
         if (newText === "") {
             newText = "?"
         }
@@ -114,14 +116,11 @@ class App extends React.Component {
         templist.items.map((element, index) => (
             (index+1 === itemId) ? templist.items[index] = newText : ({}))
         )
-        //console.log(templist)
-        //console.log(this.db.queryGetSessionData(templist.key));
         this.db.mutationUpdateList(templist);
         this.db.mutationUpdateSessionData(this.state.sessionData);
         this.loadList(templist.key);
     }
     dragAndDropUpdate = (draggedItemId, droppedAtItemId, currentListKey) => {
-        console.log("dragged",draggedItemId,"dropped",droppedAtItemId)
         let tempList = this.db.queryGetList(currentListKey)
         let tempItems = tempList.items
         //move an item lower than its destination up, bubble items below it down
@@ -170,13 +169,7 @@ class App extends React.Component {
         // WHICH LIST IT IS THAT THE USER WANTS TO
         // DELETE AND MAKE THAT CONNECTION SO THAT THE
         // NAME PROPERLY DISPLAYS INSIDE THE MODAL
-        console.log("keyPairToDelete", keyPairToDelete)
-        this.setState(
-            {
-                listKeyPairMarkedForDeletion: keyPairToDelete
-            },
-            function() { console.log("set state listKeyPairMarkedForDeletion", this.state.listKeyPairMarkedForDeletion) }
-           )
+        this.setState({listKeyPairMarkedForDeletion: keyPairToDelete})
         this.showDeleteListModal();
     }
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
@@ -192,41 +185,29 @@ class App extends React.Component {
     }
     //This function is called by the delete modal - it actually deletes the list from sessionData and then updates the DOM to reflect so
     deleteListConfirmed = (parameter) => {
-        console.log("deleteListConfirmed now executes", this.state.listKeyPairMarkedForDeletion)
+        if (this.state.currentList.key === this.state.listKeyPairMarkedForDeletion.key) {
+            this.closeCurrentList()
+        }
         //hides the modal
         let modal = document.getElementById("delete-modal");
         modal.classList.remove("is-visible");
         //Now delete the list
         let toDeletekey =  this.state.listKeyPairMarkedForDeletion.key
-        console.log("keypairs before delete", this.state.sessionData.keyNamePairs)
         let newKeyNamePairs = this.state.sessionData.keyNamePairs.filter((keyNamePair) => {
             return (keyNamePair.key !== toDeletekey)
         })
-        console.log("key pairs after delete", newKeyNamePairs)
         let copySessionData = this.state.sessionData
-        console.log("copy1", copySessionData)
         copySessionData.keyNamePairs = newKeyNamePairs
         copySessionData.counter--;
-        console.log("copy2", copySessionData)
-        this.setState(
-            {
-                sessionData:copySessionData
-            },
-            function() { }
-           )
-        console.log("after removal", this.state.sessionData)
-        console.log(JSON.stringify(this.state.sessionData))
+        this.setState({sessionData:copySessionData})
         this.db.mutationUpdateSessionData(this.state.sessionData);
-        //console.log("after removed session data", this.db.queryGetSessionData())
-
     }
-    
     render() {
-        console.log("main render", this.state.currentList)
         return (
             <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
+                    currentList={this.state.currentList}
                     closeCallback={this.closeCurrentList} />
                 <Sidebar
                     heading='Your Lists'
