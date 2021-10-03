@@ -16,7 +16,6 @@ export class ItemCard extends React.Component {
     handleClick = (event) => {
         if (event.detail === 2) {
             this.setState({editActive:!this.state.editActive})
-            //console.log("default value", this.state.itemText, this.state.itemId)
         }
     }
     handleChange = (event) => {
@@ -32,17 +31,13 @@ export class ItemCard extends React.Component {
     }
     handleBlur = (event) => {
         if (this.state.actualInputChange) {
-            console.log("ACTUALIBNPUTCHAGE")
             this.setState({
                 editActive: !this.state.editActive,
                 actualInputChange: false
             }, () => {
-                console.log("PARAMS", this.state.itemId, this.state.itemText, this.props.currentListKey)
                 this.props.renameItemCallback(this.state.itemId, this.state.itemText, this.props.currentListKey)
             });
-        console.log("TEXT AFTER EDIT", this.state.itemText)
         } else {
-            console.log("NONONONONO ACTUALIBNPUTCHAGE")
             this.setState({
                 editActive: !this.state.editActive,
                 actualInputChange: false
@@ -55,20 +50,10 @@ export class ItemCard extends React.Component {
     }
     handleDragOver = (event) => {
         event.preventDefault();
-        //console.log("dragged over", this.props.id)
     }
     handleDrop = (event) => {
-        //console.log("dragged", event.dataTransfer.getData("number"))
-        //console.log("dropped on", this.props.id)
         this.props.dragAndDropUpdateCallback(event.dataTransfer.getData("number"), this.props.id, this.props.currentListKey)
         this.setState({draggedOnto : false})
-        /*
-        this.setState(prevState => ({
-            draggedOnto: false,
-        }), () => {
-            // ANY AFTER EFFECTS?
-        });
-        */
     }
     handleDragEnter = (event) => {
         this.setState({draggedOnto : true})
@@ -81,11 +66,7 @@ export class ItemCard extends React.Component {
     //if editActive is true, the double clicked item is changed to an autoFocused text input
     //else, the item is a simple div element when the double click event ready
     render() {
-        //console.log("render called", this.props.id, this.props.item)
-        //console.log("editActive is now", this.state.editActive)
-        //console.log("current key", this.props.id)
         if (this.state.editActive) {
-            //console.log('now editing', this.props.id)
             return (
                 <input
                     id={this.props.id}

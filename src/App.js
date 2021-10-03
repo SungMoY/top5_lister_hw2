@@ -67,7 +67,6 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
-        console.log("CREATENEWLIST ACTIVATED")
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
         let newKey = this.state.sessionData.nextKey;
         let newName = "Untitled" + newKey;
@@ -202,7 +201,6 @@ class App extends React.Component {
     }
     updateList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
-        console.log("UPDATING THIS LIST: ",newCurrentList)
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData

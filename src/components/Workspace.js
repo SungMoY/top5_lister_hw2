@@ -9,7 +9,6 @@ export default class Workspace extends React.Component {
 
         if (currentList != null) {
             //This render occurs when a list is selected and its items are on display on Workspace div
-            //console.log("currentList", currentList.items, currentList.key)
             return (
                 <div id="top5-workspace">
                     <div id="workspace-edit">
@@ -39,7 +38,6 @@ export default class Workspace extends React.Component {
             )
         } else {
             //This empty render occurs when no list is currently selected.
-            //console.log("currentList: null")
             return (
                 <div id="top5-workspace">
                     <div id="workspace-edit">
