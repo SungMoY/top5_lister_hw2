@@ -29,6 +29,7 @@ class App extends React.Component {
             currentList : null,
             sessionData : loadedSessionData,
             tps : new jsTPS(),
+            editingListName: false
         }
     }
     componentDidMount() {
@@ -268,6 +269,10 @@ class App extends React.Component {
         this.setState({sessionData:copySessionData})
         this.db.mutationUpdateSessionData(this.state.sessionData);
     }
+    handleSendEditingBoolCallback = (parameter) => {
+        console.log("PARAMETER OF BOOL CALLBACK", parameter)
+        this.setState({editingListName:!parameter})
+    }
     render() {
         console.log("TRANSACTION ARRAY AT RENDER TIME",this.state.tps.transactions)
         return (
@@ -284,6 +289,8 @@ class App extends React.Component {
                     heading='Your Lists'
                     currentList={this.state.currentList}
                     keyNamePairs={this.state.sessionData.keyNamePairs}
+                    handleSendEditingBoolCallback={this.handleSendEditingBoolCallback}
+                    editingListName={this.state.editingListName}
                     createNewListCallback={this.createNewList}
                     deleteListCallback={this.deleteList}
                     loadListCallback={this.loadList}
