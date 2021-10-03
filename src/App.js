@@ -204,7 +204,8 @@ class App extends React.Component {
         console.log("LOADING THIS LIST: ",newCurrentList)
         this.setState(prevState => ({
             currentList: newCurrentList,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            editingListName : false
         }), () => {
             // ANY AFTER EFFECTS?
             this.state.tps.clearAllTransactions();
@@ -271,7 +272,7 @@ class App extends React.Component {
     }
     handleSendEditingBoolCallback = (parameter) => {
         console.log("PARAMETER OF BOOL CALLBACK", parameter)
-        this.setState({editingListName:!parameter})
+        this.setState({editingListName:parameter})
     }
     render() {
         console.log("TRANSACTION ARRAY AT RENDER TIME",this.state.tps.transactions)
