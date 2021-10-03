@@ -1,6 +1,19 @@
 import React from "react";
 
 export default class EditToolbar extends React.Component {
+    handleCTRL = (event) => {
+        console.log("handle CTRL keypress")
+        if (event.key === 'z' && event.ctrlKey) {
+            console.log("control-z successfully pressed")
+            this.undo()
+            event.stopImmediatePropagation()
+        }
+        if (event.key === 'y' && event.ctrlKey) {
+            console.log("control-y successfully pressed")
+            this.redo()
+            event.stopImmediatePropagation()
+        }
+    }
     render() {
         const { currentList,
             transactionStacktps,
@@ -12,7 +25,7 @@ export default class EditToolbar extends React.Component {
             if (transactionStacktps.hasTransactionToUndo() && transactionStacktps.hasTransactionToRedo()) {
                 console.log("undo and redo")
                 return (
-                    <div id="edit-toolbar">
+                    <div id="edit-toolbar" >
                     <div 
                         id='undo-button' 
                         className="top5-button"
@@ -107,6 +120,7 @@ export default class EditToolbar extends React.Component {
                 )
             }
         } else {
+            //no list is currently open
             return (
                 <div id="edit-toolbar">
                     <div 

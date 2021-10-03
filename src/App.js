@@ -30,25 +30,26 @@ class App extends React.Component {
             sessionData : loadedSessionData,
             tps : new jsTPS()
         }
-
-        //TODO MAKE THISWORK
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'z' && event.ctrlKey) {
-                console.log("control-z successfully pressed")
-                this.undo()
-                event.stopImmediatePropagation()
-            }
-            if (event.key === 'y' && event.ctrlKey) {
-                console.log("control-y successfully pressed")
-                this.redo()
-                event.stopImmediatePropagation()
-            }
-        })
+    }
+    componentDidMount() {
+        //console.log("COMPONENT DID MOUNT")
+        document.addEventListener('keydown', this.handleKeyDown)
+    }
+    handleKeyDown = (event) => {
+        if (event.key === 'z' && event.ctrlKey) {
+            //console.log("control-z successfully pressed")
+            this.undo()
+            event.stopImmediatePropagation()
+        }
+        if (event.key === 'y' && event.ctrlKey) {
+            //console.log("control-y successfully pressed")
+            this.redo()
+            event.stopImmediatePropagation()
+        }
     }
     // SIMPLE UNDO/REDO FUNCTIONS - use setstate to render buttons, add callbacks for each button
     undo = () => {
         console.log("undo was called", this.state.tps.transactions)
-        console.log("undo was called", this.state.tps.toString())
         if (this.state.tps.hasTransactionToUndo()) {
             this.state.tps.undoTransaction();
             this.setState()
@@ -56,7 +57,6 @@ class App extends React.Component {
     }
     redo = () => {
         console.log("redo was called", this.state.tps)
-        console.log("redo was called", this.state.tps.toString())
         if (this.state.tps.hasTransactionToRedo()) {
             this.state.tps.redoTransaction();
             this.setState()
@@ -269,14 +269,15 @@ class App extends React.Component {
     render() {
         console.log("TRANSACTION ARRAY AT RENDER TIME",this.state.tps.transactions)
         return (
-            <div id="app-root">
+            <div id="app-root" >
                 <Banner 
                     title='Top 5 Lister'
                     currentList={this.state.currentList}
                     transactionStacktps={this.state.tps}
                     undoCallback={this.undo}
                     redoCallback={this.redo}
-                    closeCallback={this.closeCurrentList} />
+                    closeCallback={this.closeCurrentList} 
+                    />
                 <Sidebar
                     heading='Your Lists'
                     currentList={this.state.currentList}
@@ -284,19 +285,21 @@ class App extends React.Component {
                     createNewListCallback={this.createNewList}
                     deleteListCallback={this.deleteList}
                     loadListCallback={this.loadList}
-                    renameListCallback={this.renameList}
-                />
+                    renameListCallback={this.renameList} 
+                    />
                 <Workspace
                     currentList={this.state.currentList} 
                     dragAndDropUpdateCallback={this.adddragAndDropUpdateTransaction}
-                    renameItemCallback={this.addRenameItemTransaction} />
+                    renameItemCallback={this.addRenameItemTransaction} 
+                    />
                 <Statusbar 
-                    currentList={this.state.currentList} />
+                    currentList={this.state.currentList} 
+                    />
                 <DeleteModal
                     listKeyPair={this.state.listKeyPairMarkedForDeletion}
                     hideDeleteListModalCallback={this.hideDeleteListModal}
-                    deleteListConfirmedCallback={this.deleteListConfirmed}
-                />
+                    deleteListConfirmedCallback={this.deleteListConfirmed} 
+                    />
             </div>
         );
     }

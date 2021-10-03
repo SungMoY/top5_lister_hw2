@@ -112,7 +112,7 @@ export class ItemCard extends React.Component {
                     onDragOver={this.handleDragOver}
                     onDrop={this.handleDrop}
                     onDragEnter={this.handleDragEnter}
-                    onDragLeave={this.handleDragLeave}>
+                    onDragLeave={this.handleDragLeave} >
                         {this.props.item}
                 </div>
             )
