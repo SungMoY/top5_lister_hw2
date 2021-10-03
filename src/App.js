@@ -29,28 +29,23 @@ class App extends React.Component {
             currentList : null,
             sessionData : loadedSessionData,
             tps : new jsTPS(),
-            editingListName: false
         }
     }
     componentDidMount() {
-        //console.log("COMPONENT DID MOUNT")
         document.addEventListener('keydown', this.handleKeyDown)
     }
     handleKeyDown = (event) => {
         if (event.key === 'z' && event.ctrlKey) {
-            //console.log("control-z successfully pressed")
             this.undo()
             event.stopImmediatePropagation()
         }
         if (event.key === 'y' && event.ctrlKey) {
-            //console.log("control-y successfully pressed")
             this.redo()
             event.stopImmediatePropagation()
         }
     }
     // SIMPLE UNDO/REDO FUNCTIONS - use setstate to render buttons, add callbacks for each button
     undo = () => {
-        console.log("undo was called", this.state.tps.transactions)
         if (this.state.tps.hasTransactionToUndo()) {
             this.state.tps.undoTransaction();
             this.setState()
@@ -58,7 +53,6 @@ class App extends React.Component {
         }
     }
     redo = () => {
-        console.log("redo was called", this.state.tps)
         if (this.state.tps.hasTransactionToRedo()) {
             this.state.tps.redoTransaction();
             this.setState()
@@ -73,6 +67,7 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CREATING A NEW LIST
     createNewList = () => {
+        console.log("CREATENEWLIST ACTIVATED")
         // FIRST FIGURE OUT WHAT THE NEW LIST'S KEY AND NAME WILL BE
         let newKey = this.state.sessionData.nextKey;
         let newName = "Untitled" + newKey;
@@ -134,7 +129,7 @@ class App extends React.Component {
             sessionData: {
                 nextKey: prevState.sessionData.nextKey,
                 counter: prevState.sessionData.counter,
-                keyNamePairs: newKeyNamePairs
+                keyNamePairs: newKeyNamePairs,
             }
         }), () => {
             // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
@@ -188,14 +183,9 @@ class App extends React.Component {
         this.updateList(currentListKey)
     }
     adddragAndDropUpdateTransaction = (draggedItemId, droppedAtItemId, currentListKey) => {
-        console.log("adddragAndDropUpdateTransaction params: ", draggedItemId, droppedAtItemId, currentListKey)
-
         let transaction = new MoveItem_Transaction(this.db, currentListKey, draggedItemId, droppedAtItemId, this.dragAndDropUpdate)
-
         let tempTPS = this.state.tps
         tempTPS.addTransaction(transaction)
-        console.log("tempTPS after adding transaction", tempTPS.transactions)
-
         this.setState({tps:tempTPS})
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
@@ -205,7 +195,6 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData,
-            editingListName : false
         }), () => {
             // ANY AFTER EFFECTS?
             this.state.tps.clearAllTransactions();
@@ -213,7 +202,7 @@ class App extends React.Component {
     }
     updateList = (key) => {
         let newCurrentList = this.db.queryGetList(key);
-        console.log("LOADING THIS LIST: ",newCurrentList)
+        console.log("UPDATING THIS LIST: ",newCurrentList)
         this.setState(prevState => ({
             currentList: newCurrentList,
             sessionData: prevState.sessionData
@@ -253,8 +242,10 @@ class App extends React.Component {
     }
     //This function is called by the delete modal - it actually deletes the list from sessionData and then updates the DOM to reflect so
     deleteListConfirmed = (parameter) => {
-        if (this.state.currentList.key === this.state.listKeyPairMarkedForDeletion.key) {
-            this.closeCurrentList()
+        if (this.state.currentList != null) {
+            if (this.state.currentList.key === this.state.listKeyPairMarkedForDeletion.key) {
+                this.closeCurrentList()
+            }
         }
         //hides the modal
         let modal = document.getElementById("delete-modal");
@@ -270,12 +261,7 @@ class App extends React.Component {
         this.setState({sessionData:copySessionData})
         this.db.mutationUpdateSessionData(this.state.sessionData);
     }
-    handleSendEditingBoolCallback = (parameter) => {
-        console.log("PARAMETER OF BOOL CALLBACK", parameter)
-        this.setState({editingListName:parameter})
-    }
     render() {
-        console.log("TRANSACTION ARRAY AT RENDER TIME",this.state.tps.transactions)
         return (
             <div id="app-root">
                 <Banner 
@@ -290,8 +276,6 @@ class App extends React.Component {
                     heading='Your Lists'
                     currentList={this.state.currentList}
                     keyNamePairs={this.state.sessionData.keyNamePairs}
-                    handleSendEditingBoolCallback={this.handleSendEditingBoolCallback}
-                    editingListName={this.state.editingListName}
                     createNewListCallback={this.createNewList}
                     deleteListCallback={this.deleteList}
                     loadListCallback={this.loadList}
