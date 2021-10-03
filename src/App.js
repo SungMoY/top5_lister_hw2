@@ -28,7 +28,7 @@ class App extends React.Component {
         this.state = {
             currentList : null,
             sessionData : loadedSessionData,
-            tps : new jsTPS()
+            tps : new jsTPS(),
         }
     }
     componentDidMount() {
@@ -53,6 +53,7 @@ class App extends React.Component {
         if (this.state.tps.hasTransactionToUndo()) {
             this.state.tps.undoTransaction();
             this.setState()
+            this.forceUpdate()
         }
     }
     redo = () => {
@@ -60,6 +61,7 @@ class App extends React.Component {
         if (this.state.tps.hasTransactionToRedo()) {
             this.state.tps.redoTransaction();
             this.setState()
+            this.forceUpdate()
         }
     }
     sortKeyNamePairsByName = (keyNamePairs) => {
@@ -269,7 +271,7 @@ class App extends React.Component {
     render() {
         console.log("TRANSACTION ARRAY AT RENDER TIME",this.state.tps.transactions)
         return (
-            <div id="app-root" >
+            <div id="app-root">
                 <Banner 
                     title='Top 5 Lister'
                     currentList={this.state.currentList}

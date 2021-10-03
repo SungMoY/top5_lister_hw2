@@ -46,7 +46,7 @@ export default class EditToolbar extends React.Component {
                     </div>
                 </div>
                 )
-            } else if (transactionStacktps.hasTransactionToUndo()) {
+            } else if (transactionStacktps.hasTransactionToUndo() && !transactionStacktps.hasTransactionToRedo()) {
                 console.log("undo but no redo")
                 return (
                     <div id="edit-toolbar">
@@ -70,7 +70,7 @@ export default class EditToolbar extends React.Component {
                     </div>
                 </div>
                 )
-            } else if (transactionStacktps.hasTransactionToRedo()) {
+            } else if (transactionStacktps.hasTransactionToRedo() && !transactionStacktps.hasTransactionToUndo()) {
                 console.log("no undo but redo")
                 return (
                     <div id="edit-toolbar">
