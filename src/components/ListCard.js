@@ -30,7 +30,6 @@ export default class ListCard extends React.Component {
         //console.log("handledeletelist callback",this.props.keyNamePair)
     }
     handleToggleEdit = (event) => {
-        this.sendUpFlipBool();
         this.setState({
             editActive: !this.state.editActive,
         });
@@ -51,7 +50,6 @@ export default class ListCard extends React.Component {
         this.props.renameListCallback(key, textValue);
         this.handleToggleEdit();
     }
-
     render() {
         const { keyNamePair, selected } = this.props;
 
