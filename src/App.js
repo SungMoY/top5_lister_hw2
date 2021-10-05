@@ -189,6 +189,7 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
     loadList = (key) => {
+        this.closeCurrentList()
         let newCurrentList = this.db.queryGetList(key);
         console.log("LOADING THIS LIST: ",newCurrentList)
         this.setState(prevState => ({
@@ -210,6 +211,7 @@ class App extends React.Component {
     }
     // THIS FUNCTION BEGINS THE PROCESS OF CLOSING THE CURRENT LIST
     closeCurrentList = () => {
+        console.log("list closed")
         this.setState(prevState => ({
             currentList: null,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
@@ -217,6 +219,7 @@ class App extends React.Component {
         }), () => {
             // ANY AFTER EFFECTS?
             this.state.tps.clearAllTransactions();
+            this.forceUpdate()
         });
     }
     deleteList = (keyPairToDelete) => {
